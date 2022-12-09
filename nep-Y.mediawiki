@@ -1,6 +1,6 @@
 <pre>
   NEP: <to be assigned>
-  Title: NeoContract ABI
+  Title: Extended NeoContract ABI
   Author: Erik Zhang <erik@neo.org>, Roman Khimov <roman@nspcc.ru>
   Type: Standard
   Status: Draft
@@ -29,7 +29,7 @@ parameters and return values with NEP-14, while this proposal fixes it.
 
 We assume the Application Binary Interface (ABI) is strongly typed, known at compilation time and static. No introspection mechanism will be provided. We assert that all contracts will have the interface definitions of any contracts they call available at compile-time.
 
-This specification does not address contracts whose interface is dynamic or otherwise known only at run-time. Should these cases become important they can be adequately handled as facilities built within the Neo ecosystem.
+This specification does not address contracts whose interface is dynamic /* do we have such contracts? */ or otherwise known only at run-time. Should these cases become important they can be adequately handled as facilities built within the Neo ecosystem.
 
 ==Specification==
 
@@ -108,7 +108,7 @@ Parameter object has the following structure:
 
 <code>type</code> indicates the type of the parameter. It can have any value of the ParameterType enumeration defined below, except for <code>Void</code>.
 
-Parameter may also have all of the ExtendedType fields embedded in the same
+Parameter may also have all of the ExtendedType fields embedded /* Why are these fields embedded? For Method we have a separate `extendedreturntype` field, I think it will be nice to unify the representation. */ in the same
 object if that allows to provide additional type data.
 
 ===ParameterType===
@@ -178,17 +178,19 @@ types or embedded into Parameter object.
 <code>type</code> indicates the base type of the return value/parameter. It can have any value of the ParameterType enumeration defined above.
 
 <code>namedtype</code> is used to refer to one of the types defined in the
-<code>namedtypes</code> object of Contract, so <code>namedtypes</code> MUST
+<code>namedtypes</code> object of Contract, so <code>namedtypes</code> MUST // This will require additional manifest checks on deploy/update
 contain a field named <code>name</code> . This field is only used for
 structures (ordered set of named values of diffent types), if used other
 fields MUST NOT be set, except for the <code>type</code> which MUST be an
-<code>Array</code>. Value string MUST start with a letter and can contain
+<code>Array</code>. // This statement conflicts with the example above, maybe we should add a note that this example is technically not valid and aimed just to specify all available field names.
+Value string MUST start with a letter and can contain
 alphanumeric characters and dots. It MUST NOT be longer than 64 characters.
 
 <code>interface</code> is only used in conjuction with the
 <code>InteropInterface</code> <code>type</code> and MUST NOT be used for other
 types, when used it specifies which interop interface is used. The only valid
-defined value for it is "IIterator" which means an iterator object. When used
+defined value for it is "IIterator" which means an iterator object. // This can be extended in future (RPC Sessions code assumes that).
+When used 
 it MUST be accompanied with the <code>value</code> object that specifies the
 type of each individual element returned from the iterator.
 
@@ -324,3 +326,6 @@ map parameters, returning an iterator with structured element type.
    }
 }
 </pre>
+
++// Question: currently we have manifest events check which is performed against basic types.
++// Do we need to support extended parameters check?
